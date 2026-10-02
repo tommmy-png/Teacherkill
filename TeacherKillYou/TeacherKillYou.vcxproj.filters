@@ -72,6 +72,9 @@
     <Filter Include="GamePlay\Actors\Stage">
       <UniqueIdentifier>{7205009e-35ae-41ed-a5b1-1dafca18c345}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GamePlay\Actors\Enemy">
+      <UniqueIdentifier>{0ba82620-9cc4-45f6-92fa-d40e5d98a0d3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -148,6 +151,12 @@
     </ClCompile>
     <ClCompile Include="Stage.cpp">
       <Filter>GamePlay\Actors\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>GamePlay\Actors\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="EnemyManager.cpp">
+      <Filter>GamePlay\Actors\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -246,6 +255,12 @@
     </ClInclude>
     <ClInclude Include="Stage.h">
       <Filter>GamePlay\Actors\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>GamePlay\Actors\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyManager.h">
+      <Filter>GamePlay\Actors\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

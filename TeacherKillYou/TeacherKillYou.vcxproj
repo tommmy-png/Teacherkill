@@ -24,6 +24,8 @@
   <ItemGroup>
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="DebugUI.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="EnemyManager.cpp" />
     <ClCompile Include="GameContext.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="imguizmo\GraphEditor.cpp" />
@@ -50,6 +52,8 @@
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="DebugUI.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="EnemyManager.h" />
     <ClInclude Include="GameContext.h" />
     <ClInclude Include="GameScene.h" />
     <ClInclude Include="ICamera.h" />

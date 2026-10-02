@@ -2,6 +2,7 @@
 #include "CameraController.h"
 #include "Player.h"
 #include "Stage.h"
+#include "EnemyManager.h"
 
 class GameContext
 {
@@ -18,8 +19,12 @@ public:
     CameraController& GetCameraController() { return cameraController_; }
     const CameraController& GetCameraController() const { return cameraController_; }
 
+    demo::EnemyManager& GetEnemyManager() { return enemyManager_; }
+    const demo::EnemyManager& GetEnemyManager() const { return enemyManager_; }
+
 private:
     CameraController cameraController_;
     Player player_;
     Stage stage_;
+    demo::EnemyManager enemyManager_;
 };
