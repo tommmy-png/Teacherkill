@@ -5,7 +5,6 @@ class PlayerCamera : public ICamera {
 public:
     PlayerCamera();
 
-    // インターフェースのオーバーライド（1つに集約）
     void Update() override;
 
     void OnActivate() override;
@@ -18,7 +17,7 @@ public:
 
 private:
     Vector3 playerPosition_{ 0.0f, 0.0f, 0.0f }; // 追従対象の位置
-    float eyeHeight_{ 1.6f };       // 目線の高さ（160cm付近）
+    float eyeHeight_{ 1.6f };       // 目線の高さ
     float sensitivity_{ 0.0025f };  // マウス感度
 
     // カメラの現在の角度（ラジアン）

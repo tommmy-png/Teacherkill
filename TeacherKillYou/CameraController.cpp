@@ -1,5 +1,5 @@
 #include "CameraController.h"
-#include "raylib.h" // ƒL[“ü—Í(IsKeyPressed)‚Ì‚½‚ß‚É’Ç‰Á
+#include "raylib.h" 
 
 CameraController::CameraController() {
     currentCamera_ = &playerCamera_;

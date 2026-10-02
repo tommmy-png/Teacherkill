@@ -17,15 +17,15 @@ void GameContext::Reset()
 
 void GameContext::Update(float deltaTime)
 {
-    // 1. カメラの向きに合わせてプレイヤーを動かす
+    // カメラの向きに合わせてプレイヤーを動かす
     Vector3 forward = cameraController_.GetPlayerCamera().GetForwardVector();
     Vector3 right = cameraController_.GetPlayerCamera().GetRightVector();
     player_.Update(deltaTime, forward, right);
 
-    // 2. プレイヤーの移動後位置をカメラに教える
+    // プレイヤーの移動後位置をカメラに教える
     cameraController_.GetPlayerCamera().SetPlayerPosition(player_.GetPosition());
 
-    // 3. カメラ全体のUpdate（Update() 1つのみ）を呼ぶ
+    // カメラ全体のUpdateを呼ぶ
     cameraController_.Update();
 }
 
