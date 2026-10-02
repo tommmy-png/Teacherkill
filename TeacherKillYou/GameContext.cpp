@@ -9,12 +9,16 @@ void GameContext::Init()
     cameraController_.Init();
 	player_.Init();
     stage_.Init();
+    enemyManager_.Clear();
+    enemyManager_.Spawn({ 0.0f, 0.0f, 3.0f }, demo::EnemyConfig{});
 }
 
 void GameContext::Reset()
 {
 	player_.Reset();
     stage_.Reset();
+    enemyManager_.Clear();
+    enemyManager_.Spawn({ 0.0f, 0.0f, 3.0f }, demo::EnemyConfig{});
 }
 
 void GameContext::Update(float deltaTime)
@@ -28,6 +32,8 @@ void GameContext::Update(float deltaTime)
 
     // 3. ステージの更新
     stage_.Update(deltaTime);
+    enemyManager_.Update(deltaTime, player_, stage_);
+    enemyManager_.RemoveExpired();
 
     // 4. カメラを移動後のプレイヤーに追従させて更新
     cameraController_.GetPlayerCamera().SetPlayerPosition(player_.GetPosition());
@@ -42,12 +48,14 @@ void GameContext::Draw() const
 
     stage_.Draw();
     player_.Draw();
+    enemyManager_.Draw();
 
     EndMode3D();
 }
 
 void GameContext::End()
 {
+    enemyManager_.Clear();
     player_.End();
     stage_.End();
 }
