@@ -16,6 +16,7 @@ void CameraController::Update() {
 #ifdef _DEBUG
     // Kキーで プレイヤーカメラ に切り替え
     if (IsKeyPressed(KEY_K)) {
+		// プレイヤーカメラに切り替え
         SetActiveCamera(CameraType::Player);
     }
     // Lキーで システム（デバッグ）カメラ に切り替え
