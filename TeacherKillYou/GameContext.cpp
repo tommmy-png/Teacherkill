@@ -41,7 +41,6 @@ void GameContext::Update(float deltaTime)
 
     if (anims != nullptr && animCount > 0)
     {
-        // ★ コピーではなく参照（&）で取得する
         Model& paladinModel = ResourceManager::GetInstance().GetModelRef(ResourceKeys::Model_Paladin);
 
         animFrame_++;
@@ -49,7 +48,6 @@ void GameContext::Update(float deltaTime)
             animFrame_ = 0;
         }
 
-        // 参照元のモデルのポーズを直接更新
         UpdateModelAnimation(paladinModel, anims[animIndex_], animFrame_);
     }
 
