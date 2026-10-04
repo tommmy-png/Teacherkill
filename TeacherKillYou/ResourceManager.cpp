@@ -14,7 +14,7 @@ void ResourceManager::LoadAll() {
 
     LoadModel(ResourceKeys::Model_Paladin, "Data/Image/BrainStem.glb");
 
-    // ★ アニメーションのロードも行う
+    // アニメーションのロードも行う
     LoadModelAnimations(ResourceKeys::Model_Paladin, "Data/Image/BrainStem.glb");
 
     // 他のモデルが増えたらここに追加
