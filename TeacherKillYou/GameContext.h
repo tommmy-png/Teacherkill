@@ -27,4 +27,7 @@ private:
     Player player_;
     Stage stage_;
     demo::EnemyManager enemyManager_;
+
+    int animFrame_{ 0 };
+    int animIndex_{ 0 };
 };

@@ -35,6 +35,22 @@ void GameContext::Update(float deltaTime)
     enemyManager_.Update(deltaTime, player_, stage_);
     enemyManager_.RemoveExpired();
 
+
+    int animCount = 0;
+    ModelAnimation* anims = ResourceManager::GetInstance().GetModelAnimations(ResourceKeys::Model_Paladin, &animCount);
+
+    if (anims != nullptr && animCount > 0)
+    {
+        Model& paladinModel = ResourceManager::GetInstance().GetModelRef(ResourceKeys::Model_Paladin);
+
+        animFrame_++;
+        if (animFrame_ >= anims[animIndex_].frameCount) {
+            animFrame_ = 0;
+        }
+
+        UpdateModelAnimation(paladinModel, anims[animIndex_], animFrame_);
+    }
+
     // 4. カメラを移動後のプレイヤーに追従させて更新
     cameraController_.GetPlayerCamera().SetPlayerPosition(player_.GetPosition());
     cameraController_.Update();
@@ -49,6 +65,8 @@ void GameContext::Draw() const
     stage_.Draw();
     player_.Draw();
     enemyManager_.Draw();
+    Model& paladinModel = ResourceManager::GetInstance().GetModelRef(ResourceKeys::Model_Paladin);
+    DrawModel(paladinModel, { 0.0f, 0.0f, 3.0f }, 1.0f, WHITE);
 
     EndMode3D();
 }
