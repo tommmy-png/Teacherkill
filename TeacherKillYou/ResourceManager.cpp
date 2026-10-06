@@ -8,7 +8,7 @@ ResourceManager& ResourceManager::GetInstance() {
 
 // ゲーム全体で使うモデルをキーと一緒に登録しておく
 void ResourceManager::LoadAll() {
-    LoadModel(ResourceKeys::Model_Player, "Data/Image/greenman.glb");
+    LoadModel(ResourceKeys::Model_HandGunView, "Data/Image/HandPov/handgun.glb");
 
 	LoadModel(ResourceKeys::Model_Stage1, "Data/Image/free_loft_18_mini_office_v.optimization.glb");
 

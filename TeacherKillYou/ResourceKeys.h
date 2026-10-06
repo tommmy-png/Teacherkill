@@ -5,7 +5,9 @@ namespace ResourceKeys {
     constexpr const char* Model_Stage = "Model_Stage";
     constexpr const char* Model_Paladin = "Model_Paladin";
 
-	constexpr const char* Model_Player = "Model_Player";
+	//Playerのモデル(FPS hand and gun)
+    constexpr const char* Model_HandGunView = "HandGunView";
+  
 
 
     // ステージのモデル

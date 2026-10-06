@@ -2,6 +2,7 @@
 #include "ResourceManager.h"
 #include "ResourceKeys.h"
 #include "raylib.h"
+#include "CameraController.h"
 
 void GameContext::Init()
 {
@@ -63,10 +64,24 @@ void GameContext::Draw() const
     DrawGrid(20, 1.0f);
 
     stage_.Draw();
-    player_.Draw();
+
+    player_.DrawViewModel(
+        cameraController_.GetPlayerCamera()
+    );
+
     enemyManager_.Draw();
-    Model& paladinModel = ResourceManager::GetInstance().GetModelRef(ResourceKeys::Model_Paladin);
-    DrawModel(paladinModel, { 0.0f, 0.0f, 3.0f }, 1.0f, WHITE);
+
+    Model& paladinModel =
+        ResourceManager::GetInstance().GetModelRef(
+            ResourceKeys::Model_Paladin
+        );
+
+    DrawModel(
+        paladinModel,
+        { 0.0f, 0.0f, 3.0f },
+        1.0f,
+        WHITE
+    );
 
     EndMode3D();
 }

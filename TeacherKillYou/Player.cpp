@@ -3,6 +3,7 @@
 #include "ResourceManager.h"
 #include "ResourceKeys.h"
 #include "raymath.h"
+#include "PlayerCamera.h"
 
 void Player::Init()
 {
@@ -145,9 +146,53 @@ void Player::Update(float deltaTime, const Stage& stage, Vector3 forward, Vector
 void Player::Draw() const
 {
     Model playerModel =
-        ResourceManager::GetInstance().GetModel(ResourceKeys::Model_Player);
+        ResourceManager::GetInstance().GetModel(
+            ResourceKeys::Model_HandGunView
+        );
 
     DrawModel(playerModel, position_, 1.0f, WHITE);
+}
+
+void Player::DrawViewModel(const PlayerCamera& camera) const
+{
+    Model handGun =
+        ResourceManager::GetInstance().GetModel(
+            ResourceKeys::Model_HandGunView
+        );
+
+    Vector3 cameraPosition = camera.GetPosition();
+    Vector3 forward = camera.GetForwardVector();
+    Vector3 right = camera.GetRightVector();
+    Vector3 up = camera.GetUpVector();
+
+    Vector3 position = cameraPosition;
+
+    position = Vector3Add(
+        position,
+        Vector3Scale(forward, 0.22f)
+    );
+
+    position = Vector3Add(
+        position,
+        Vector3Scale(right, 0.01f)
+    );
+
+    position = Vector3Subtract(
+        position,
+        Vector3Scale(up, 0.25f)
+    );
+
+    float yaw = atan2f(forward.x, forward.z) * RAD2DEG;
+    float pitch = camera.GetPitch() * RAD2DEG;
+
+    DrawModelEx(
+        handGun,
+        position,
+        Vector3{ 0.0f, 1.0f, 0.0f },
+        yaw,
+        Vector3{ viewModelScale_, viewModelScale_, viewModelScale_ },
+        WHITE
+    );
 }
 
 void Player::End()

@@ -2,6 +2,7 @@
 #include "raylib.h"
 
 class Stage;
+class PlayerCamera;
 
 class Player
 {
@@ -11,9 +12,19 @@ public:
 
     void Init();
     void Reset();
+
     // Stageの参照を受け取るように修正
-    void Update(float deltaTime, const Stage& stage, Vector3 forward = { 0,0,1 }, Vector3 right = { 1,0,0 });
+    void Update(
+        float deltaTime,
+        const Stage& stage,
+        Vector3 forward = { 0,0,1 },
+        Vector3 right = { 1,0,0 }
+    );
+
     void Draw() const;
+
+    // FPS hand + gun
+    void DrawViewModel(const PlayerCamera& camera) const;
     void End();
 
     Vector3 GetPosition() const { return position_; }
@@ -25,13 +36,15 @@ private:
     float moveSpeed_{ 5.0f };
 
     // プレイヤーの当たり判定用パラメータ（半径と高さ）
-    float playerRadius_{ 0.4f }; // 半径（横幅）
-    float playerHeight_{ 1.8f }; // 高さ
+    float playerRadius_{ 0.4f };
+    float playerHeight_{ 1.8f };
 
-	//プレイヤーの重力加速度
-	float gravity_{ -9.81f }; // 重力加速度
-	float jumpForce_{ 3.0f }; // ジャンプ力
+    // プレイヤーの重力加速度
+    float gravity_{ -9.81f };
+    float jumpForce_{ 3.0f };
 
-	bool isGrounded_{ false }; // 地面に接地しているかどうかのフラグ
+    bool isGrounded_{ false };
 
+    //Playe Hand and Gun
+    float viewModelScale_{ 0.01f };
 };
