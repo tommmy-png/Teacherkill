@@ -9,16 +9,25 @@ void GameContext::Init()
     cameraController_.Init();
 	player_.Init();
     stage_.Init();
-    enemyManager_.Clear();
-    enemyManager_.Spawn({ 0.0f, 0.0f, 3.0f }, demo::EnemyConfig{});
+    PlaceCharacters();
 }
 
 void GameContext::Reset()
 {
 	player_.Reset();
     stage_.Reset();
+    PlaceCharacters();
+}
+
+void GameContext::PlaceCharacters()
+{
+    // モデルの原点が床とは限らないため、実際の床から開始位置を求める。
+    player_.SetPosition(stage_.FindGroundPosition({ 0.0f, 0.0f, 0.0f }));
     enemyManager_.Clear();
-    enemyManager_.Spawn({ 0.0f, 0.0f, 3.0f }, demo::EnemyConfig{});
+    enemyManager_.Spawn(stage_.FindGroundPosition({ 0.9f, 0.0f, 2.5f }), {});
+    paladinPosition_ = stage_.FindGroundPosition({ 0.0f, 0.0f, 3.0f });
+    cameraController_.GetPlayerCamera().SetPlayerPosition(player_.GetPosition());
+    cameraController_.GetPlayerCamera().Update();
 }
 
 void GameContext::Update(float deltaTime)
@@ -30,8 +39,7 @@ void GameContext::Update(float deltaTime)
     // 2. プレイヤーの移動（ステージとの当たり判定を含めて更新）
     player_.Update(deltaTime, stage_, forward, right);
 
-    // 3. ステージの更新
-    stage_.Update(deltaTime);
+    // 3. 敵の更新
     enemyManager_.Update(deltaTime, player_, stage_);
     enemyManager_.RemoveExpired();
 
@@ -66,7 +74,7 @@ void GameContext::Draw() const
     player_.Draw();
     enemyManager_.Draw();
     Model& paladinModel = ResourceManager::GetInstance().GetModelRef(ResourceKeys::Model_Paladin);
-    DrawModel(paladinModel, { 0.0f, 0.0f, 3.0f }, 1.0f, WHITE);
+    DrawModel(paladinModel, paladinPosition_, 1.0f, WHITE);
 
     EndMode3D();
 }
@@ -74,6 +82,5 @@ void GameContext::Draw() const
 void GameContext::End()
 {
     enemyManager_.Clear();
-    player_.End();
     stage_.End();
 }

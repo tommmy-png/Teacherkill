@@ -27,14 +27,6 @@ public:
     SceneManager(const SceneManager&) = delete;
     SceneManager& operator=(const SceneManager&) = delete;
 
-    // 実行コンフィグ構造体とセッター
-    struct RunConfig
-    {
-        bool windowed = true;
-        bool enableDebugUI = true;
-    };
-    void SetRunConfig(const RunConfig& cfg) { runConfig = cfg; }
-
 private:
     SceneManager() = default;
     ~SceneManager() = default;
@@ -44,8 +36,6 @@ private:
     GameScene   gameScene{ &gameContext };
 
     Scene* currentScene = nullptr;
-
-    RunConfig runConfig{};
 };
 
 inline SceneManager& SM() { return SceneManager::GetInstance(); }

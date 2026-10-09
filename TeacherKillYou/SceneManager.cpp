@@ -1,18 +1,12 @@
 #include "SceneManager.h"
 #include "raylib.h"
-#include "rlImGui.h"
 #include "ResourceManager.h"
-#include "imgui.h"
 
 void SceneManager::Init()
 {
-    // ウィンドウやImGuiの初期設定はここで行う
+    // ウィンドウを生成してからリソースを読み込む。
     InitWindow(1920, 1080, u8"学校脱出 3D");
     SetTargetFPS(60);
-    rlImGuiSetup(true);
-
-    // ImGuiとraylibのカーソル競合を防ぐ設定
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
     // アセットの一括ロード
     RM().LoadAll();
@@ -29,7 +23,6 @@ void SceneManager::Init()
 void SceneManager::Shutdown()
 {
     RM().UnloadAll();
-    rlImGuiShutdown();
     CloseWindow();
 }
 
