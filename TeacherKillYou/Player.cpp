@@ -123,7 +123,12 @@ void Player::Draw(const PlayerCamera* camera) const
             rlRotatef(rotation_.z, 0.0f, 0.0f, 1.0f);
             rlRotatef(rotation_.x, 1.0f, 0.0f, 0.0f);
             rlRotatef(rotation_.y, 0.0f, 1.0f, 0.0f);
-            rlScalef(scale_.x, scale_.y, scale_.z);
+
+            rlScalef(
+                scale_.x * viewModelScale_,
+                scale_.y * viewModelScale_,
+                scale_.z * viewModelScale_
+            );
 
             for (int i = 0; i < handGun.meshCount; i++)
             {
