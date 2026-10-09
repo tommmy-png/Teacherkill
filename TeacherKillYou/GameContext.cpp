@@ -72,7 +72,6 @@ void GameContext::Draw() const
         activePlayerCam = &cameraController_.GetPlayerCamera();
     }
 
-    // 1行でスマートに描画
     player_.Draw(activePlayerCam);
 
     enemyManager_.Draw();

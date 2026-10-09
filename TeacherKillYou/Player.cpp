@@ -92,10 +92,9 @@ void Player::Draw(const PlayerCamera* camera) const
 
     if (camera != nullptr)
     {
-        // --------------------------------------------------
         // 1. 一人称視点 (FPS) 時の描画計算
         // カメラの位置・正面方向・上下角度(Pitch)に手を完全に追従させる
-        // --------------------------------------------------
+        
         Vector3 camPos = camera->GetPosition();
         Vector3 forward = camera->GetForwardVector();
         Vector3 right = camera->GetRightVector();
@@ -116,10 +115,8 @@ void Player::Draw(const PlayerCamera* camera) const
     }
     else
     {
-        // --------------------------------------------------
         // 2. システムカメラ（デバッグ）時の描画計算
         // ギズモ操作用の Transform (position_, rotation_, scale_) に直接従う
-        // --------------------------------------------------
         rlPushMatrix();
         {
             rlTranslatef(position_.x, position_.y, position_.z);
