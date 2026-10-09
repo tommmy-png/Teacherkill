@@ -1,102 +1,27 @@
 ﻿#include "DebugUI.h"
 #include "GameContext.h"
 #include "imgui.h"
-#include "ImGuizmo.h"
-#include "raymath.h"
 
-void DebugUI::Draw(GameContext& gameContext)
-{
+void DebugUI::Draw(GameContext& gameContext) {
     auto& cameraController = gameContext.GetCameraController();
 
-    if (cameraController.GetActiveType() == CameraType::System)
-    {
+    if (cameraController.GetActiveType() == CameraType::System) {
         ImGuizmo::BeginFrame();
 
         DrawHierarchy();
         DrawInspector(gameContext);
-        DrawGizmo(gameContext);
+
+        // 選択されている列挙型に応じてターゲットの GameObject* を特定
+        GameObject* targetObj = nullptr;
+        if (selectedObject_ == SelectedObjectType::Player) {
+            targetObj = &gameContext.GetPlayer();
+        }
+
+        // ギズモ描画クラスへポインタを渡す
+        gizmoDrawer_.Draw(gameContext, targetObj);
     }
 
     DrawCameraController(cameraController);
-}
-
-void DebugUI::DrawGizmo(GameContext& gameContext)
-{
-    if (selectedObject_ != SelectedObjectType::Player)
-    {
-        return;
-    }
-
-    if (!ImGui::GetIO().WantCaptureKeyboard)
-    {
-        if (IsKeyPressed(KEY_W)) currentGizmoOperation_ = ImGuizmo::TRANSLATE;
-        if (IsKeyPressed(KEY_E)) currentGizmoOperation_ = ImGuizmo::ROTATE;
-        if (IsKeyPressed(KEY_R)) currentGizmoOperation_ = ImGuizmo::SCALE;
-    }
-
-    auto& cameraController = gameContext.GetCameraController();
-    const Camera3D& camera = cameraController.GetActiveRaylibCamera();
-    Player& player = gameContext.GetPlayer();
-
-    ImGuiIO& io = ImGui::GetIO();
-
-    ImGuizmo::SetDrawlist(ImGui::GetForegroundDrawList());
-    ImGuizmo::SetRect(0.0f, 0.0f, io.DisplaySize.x, io.DisplaySize.y);
-    ImGuizmo::Enable(true);
-
-    float aspect = io.DisplaySize.x / io.DisplaySize.y;
-
-    Matrix rlView = GetCameraMatrix(camera);
-    Matrix rlProj = MatrixPerspective(camera.fovy * DEG2RAD, aspect, 0.01f, 1000.0f);
-
-    Matrix viewMat = MatrixTranspose(rlView);
-    Matrix projMat = MatrixTranspose(rlProj);
-
-    Vector3 pos = player.GetPosition();
-    Vector3 rot = player.GetRotation();
-    Vector3 scale = player.GetScale();
-
-    // ★ 回転行列の順序を明確に計算 (Y * X * Z)
-    Matrix rlScale = MatrixScale(scale.x, scale.y, scale.z);
-    Matrix rlRotX = MatrixRotateX(rot.x * DEG2RAD);
-    Matrix rlRotY = MatrixRotateY(rot.y * DEG2RAD);
-    Matrix rlRotZ = MatrixRotateZ(rot.z * DEG2RAD);
-
-    // Z * X * Y の順で回転を合成
-    Matrix rlRot = MatrixMultiply(MatrixMultiply(rlRotZ, rlRotX), rlRotY);
-    Matrix rlTrans = MatrixTranslate(pos.x, pos.y, pos.z);
-
-    Matrix rlModel = MatrixMultiply(MatrixMultiply(rlScale, rlRot), rlTrans);
-    Matrix modelMat = MatrixTranspose(rlModel);
-
-    bool manipulated = ImGuizmo::Manipulate(
-        &viewMat.m0,
-        &projMat.m0,
-        currentGizmoOperation_,
-        ImGuizmo::WORLD,
-        &modelMat.m0
-    );
-
-    if (manipulated)
-    {
-        float matrix[16];
-        memcpy(matrix, &modelMat.m0, sizeof(float) * 16);
-
-        float matrixTranslation[3];
-        float matrixRotation[3];
-        float matrixScale[3];
-
-        ImGuizmo::DecomposeMatrixToComponents(
-            matrix,
-            matrixTranslation,
-            matrixRotation,
-            matrixScale
-        );
-
-        player.SetPosition({ matrixTranslation[0], matrixTranslation[1], matrixTranslation[2] });
-        player.SetRotation({ matrixRotation[0], matrixRotation[1], matrixRotation[2] });
-        player.SetScale({ matrixScale[0], matrixScale[1], matrixScale[2] });
-    }
 }
 
 void DebugUI::DrawHierarchy()
@@ -130,6 +55,29 @@ void DebugUI::DrawInspector(GameContext& gameContext)
 {
     ImGui::Begin("Inspector");
 
+    // ----------------------------------------------------
+    // ギズモ操作モード切替 UI（Translate / Rotate / Scale）
+    // ----------------------------------------------------
+    ImGui::Text("Gizmo Mode");
+    ImGuizmo::OPERATION currentOp = gizmoDrawer_.GetOperation();
+
+    if (ImGui::RadioButton("Translate (W)", currentOp == ImGuizmo::TRANSLATE)) {
+        gizmoDrawer_.SetOperation(ImGuizmo::TRANSLATE);
+    }
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate (E)", currentOp == ImGuizmo::ROTATE)) {
+        gizmoDrawer_.SetOperation(ImGuizmo::ROTATE);
+    }
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale (R)", currentOp == ImGuizmo::SCALE)) {
+        gizmoDrawer_.SetOperation(ImGuizmo::SCALE);
+    }
+
+    ImGui::Separator();
+
+    // ----------------------------------------------------
+    // オブジェクトの Transform パラメータ編集
+    // ----------------------------------------------------
     switch (selectedObject_)
     {
     case SelectedObjectType::Player:

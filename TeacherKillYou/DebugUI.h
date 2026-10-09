@@ -1,11 +1,8 @@
 #pragma once
-
 #include "CameraController.h"
-#include "imgui.h"
-#include "ImGuizmo.h"
+#include "GizmoDrawer.h"
 
-enum class SelectedObjectType
-{
+enum class SelectedObjectType {
     None,
     Player,
     EnemyManager,
@@ -15,18 +12,15 @@ enum class SelectedObjectType
 
 class GameContext;
 
-class DebugUI
-{
+class DebugUI {
 public:
     void Draw(GameContext& gameContext);
 
 private:
     void DrawHierarchy();
     void DrawInspector(GameContext& gameContext);
-    void DrawGizmo(GameContext& gameContext);
     void DrawCameraController(CameraController& cameraController);
 
     SelectedObjectType selectedObject_{ SelectedObjectType::None };
-
-    ImGuizmo::OPERATION currentGizmoOperation_{ ImGuizmo::TRANSLATE };
+    GizmoDrawer gizmoDrawer_;
 };

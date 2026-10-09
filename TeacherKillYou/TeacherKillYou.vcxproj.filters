@@ -78,6 +78,9 @@
     <Filter Include="Debug\DebugUI">
       <UniqueIdentifier>{2f3c4ab1-6f63-43a8-80b8-641ddd906fd1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Debug\GizmoDrawer">
+      <UniqueIdentifier>{b92afbe3-f4cc-4fd4-932f-df5f72d13a48}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -163,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="SystemMode.cpp">
       <Filter>Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GizmoDrawer.cpp">
+      <Filter>Debug\GizmoDrawer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -273,6 +279,9 @@
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GizmoDrawer.h">
+      <Filter>Debug\GizmoDrawer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,13 +1,13 @@
 #pragma once
-#include "raylib.h"
+#include "GameObject.h"
 
 class Stage;
 
-class Player
+class Player : public GameObject
 {
 public:
-    Player() = default;
-    ~Player() = default;
+    Player() : GameObject(GameObjectType::Player, "Player") {}
+    ~Player() override = default;
 
     void Init();
     void Reset();
@@ -15,29 +15,16 @@ public:
     void Draw() const;
     void End();
 
-    // Transform
-    Vector3 GetPosition() const { return position_; }
-    void SetPosition(Vector3 pos) { position_ = pos; }
-
-    Vector3 GetRotation() const { return rotation_; }
-    void SetRotation(Vector3 rot) { rotation_ = rot; }
-
-    Vector3 GetScale() const { return scale_; }
-    void SetScale(Vector3 scl) { scale_ = scl; }
-
-    // 当たり判定パラメータ用
+    // 当たり判定用パラメータ
     float GetRadius() const { return playerRadius_; }
     float GetHeight() const { return playerHeight_; }
     void SetColliderSize(float radius, float height) { playerRadius_ = radius; playerHeight_ = height; }
 
 private:
-    Vector3 position_{ 0.0f, 0.0f, 0.0f };
-    Vector3 rotation_{ 0.0f, 0.0f, 0.0f }; // 回転 (Yaw, Pitch, Roll)
-    Vector3 scale_{ 1.0f, 1.0f, 1.0f };    // モデル拡大率
-
     Vector3 velocity_{ 0.0f, 0.0f, 0.0f };
     float moveSpeed_{ 5.0f };
 
+    // コリジョン設定
     float playerRadius_{ 0.4f };
     float playerHeight_{ 1.8f };
 
@@ -45,5 +32,4 @@ private:
     float jumpForce_{ 3.0f };
 
     bool isGrounded_{ false };
-
 };
