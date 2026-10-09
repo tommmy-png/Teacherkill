@@ -29,10 +29,13 @@ public:
     const demo::EnemyManager& GetEnemyManager() const { return enemyManager_; }
 
 private:
+    void PlaceCharacters();
     CameraController cameraController_;
     Player player_;
     Stage stage_;
     demo::EnemyManager enemyManager_;
+
+    Vector3 paladinPosition_{ 0.0f, 0.0f, 3.0f };
 
     int animFrame_{ 0 };
     int animIndex_{ 0 };

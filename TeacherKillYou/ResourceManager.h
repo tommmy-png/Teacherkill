@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include "raylib.h"
 #include "ResourceKeys.h"
 
@@ -8,7 +9,7 @@ class ResourceManager {
 public:
     static ResourceManager& GetInstance();
 
-    // キーとパスを指定してモデルをロード・登録する
+    // キーとパスを指定してモデルを登録する。FBXも変換せず直接読み込む。
     void LoadModel(const std::string& key, const std::string& path);
 
     // キーを指定してどこからでもモデルを取得する
@@ -22,6 +23,9 @@ public:
 
     // アニメーション読み込み用関数
     void LoadModelAnimations(const std::string& key, const std::string& path);
+
+    // FBXはシアーを含む行列で再生し、通常のモデルはraylibへ委譲する。
+    void ApplyModelAnimation(const std::string& key, int frame, int animationIndex = 0);
 
     // 指定したキーのアニメーションを取得（存在しない場合は count = 0）
     ModelAnimation* GetModelAnimations(const std::string& key, int* count = nullptr) const;
@@ -43,6 +47,7 @@ private:
     struct AnimationData {
         ModelAnimation* anims{ nullptr };
         int count{ 0 };
+        std::vector<std::vector<Matrix>> bakedFrames;
     };
     std::unordered_map<std::string, AnimationData> animations_;
 };

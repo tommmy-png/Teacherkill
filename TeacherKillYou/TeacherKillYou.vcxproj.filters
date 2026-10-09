@@ -12,6 +12,9 @@
     <Filter Include="main">
       <UniqueIdentifier>{15006b34-4f14-42bc-9179-519f15f2c478}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\ufbx">
+      <UniqueIdentifier>{7a6fa386-4c57-4bce-b52d-a742beaf8e01}</UniqueIdentifier>
+    </Filter>
     <Filter Include="lib">
       <UniqueIdentifier>{8a042a1b-57a9-4e2b-bdcc-390914c9e55e}</UniqueIdentifier>
     </Filter>
@@ -84,6 +87,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="tools\FBX.md" />
+    <None Include="third_party\ufbx\LICENSE" />
+    <None Include="third_party\ufbx\README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -139,6 +145,18 @@
     </ClCompile>
     <ClCompile Include="DebugUI.cpp">
       <Filter>Debug\DebugUI</Filter>
+    </ClCompile>
+    <ClCompile Include="FbxLoader.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="BakedAnimation.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="GltfMaterials.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\ufbx\ufbx.c">
+      <Filter>lib\ufbx</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Resource</Filter>
@@ -246,6 +264,18 @@
     </ClInclude>
     <ClInclude Include="ResourceKeys.h">
       <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxLoader.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="BakedAnimation.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="GltfMaterials.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="third_party\ufbx\ufbx.h">
+      <Filter>lib\ufbx</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">
       <Filter>Resource</Filter>

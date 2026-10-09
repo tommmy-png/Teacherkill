@@ -5,6 +5,7 @@
 #include "PlayerCamera.h"
 #include "raymath.h"
 #include "rlgl.h"
+#include <algorithm>
 
 void Player::Init() { Reset(); }
 
@@ -67,21 +68,19 @@ void Player::UpdateVerticalPhysics(float deltaTime, const Stage& stage)
     }
 
     if (!isGrounded_) velocity_.y += gravity_ * deltaTime;
+    const float previousY = position_.y;
     position_.y += velocity_.y * deltaTime;
-
-    Vector3 rayPos = Vector3Add(position_, { 0.0f, 1.0f, 0.0f });
-    RayCollision groundHit = stage.Raycast({ rayPos, { 0.0f, -1.0f, 0.0f } });
-
-    if (groundHit.hit)
+    // 移動前から落下区間を検査し、天井面の誤判定と床のすり抜けを防ぐ。
+    constexpr float probeHeight = 0.25f;
+    const Ray downRay = { { position_.x, previousY + probeHeight, position_.z }, { 0, -1, 0 } };
+    const float probeDistance = probeHeight + (std::max)(0.0f, previousY - position_.y) + 0.01f;
+    const RayCollision groundHit = stage.RaycastGround(downRay, probeDistance);
+    if (velocity_.y <= 0.0f && groundHit.hit && position_.y <= groundHit.point.y + 0.01f)
     {
-        float groundY = (position_.y + 1.0f) - groundHit.distance;
-        if (position_.y <= groundY + 0.01f)
-        {
-            position_.y = groundY;
-            velocity_.y = 0.0f;
-            isGrounded_ = true;
-            return;
-        }
+        position_.y = groundHit.point.y;
+        velocity_.y = 0.0f;
+        isGrounded_ = true;
+        return;
     }
     isGrounded_ = false;
 }

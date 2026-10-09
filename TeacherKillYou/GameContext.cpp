@@ -9,16 +9,25 @@ void GameContext::Init()
     cameraController_.Init();
     player_.Init();
     stage_.Init();
-    enemyManager_.Clear();
-    enemyManager_.Spawn({ 0.0f, 0.0f, 3.0f }, demo::EnemyConfig{});
+    PlaceCharacters();
 }
 
 void GameContext::Reset()
 {
     player_.Reset();
     stage_.Reset();
+    PlaceCharacters();
+}
+
+void GameContext::PlaceCharacters()
+{
+    // PlayerのTransformは維持し、足元の高さだけをステージの床へ合わせる。
+    player_.SetPosition(stage_.FindGroundPosition(player_.GetPosition()));
     enemyManager_.Clear();
-    enemyManager_.Spawn({ 0.0f, 0.0f, 3.0f }, demo::EnemyConfig{});
+    enemyManager_.Spawn(stage_.FindGroundPosition({ 0.9f, 0.0f, 2.5f }), {});
+    paladinPosition_ = stage_.FindGroundPosition({ 0.0f, 0.0f, 3.0f });
+    cameraController_.GetPlayerCamera().SetPlayerPosition(player_.GetPosition());
+    cameraController_.GetPlayerCamera().Update();
 }
 
 void GameContext::Update(float deltaTime)
@@ -34,7 +43,6 @@ void GameContext::Update(float deltaTime)
     }
 
     // 2. ワールドオブジェクト（ステージ・敵）の更新
-    stage_.Update(deltaTime);
     enemyManager_.Update(deltaTime, player_, stage_);
     enemyManager_.RemoveExpired();
 
@@ -43,12 +51,11 @@ void GameContext::Update(float deltaTime)
     ModelAnimation* anims = ResourceManager::GetInstance().GetModelAnimations(ResourceKeys::Model_Paladin, &animCount);
     if (anims != nullptr && animCount > 0)
     {
-        Model& paladinModel = ResourceManager::GetInstance().GetModelRef(ResourceKeys::Model_Paladin);
         animFrame_++;
         if (animFrame_ >= anims[animIndex_].frameCount) {
             animFrame_ = 0;
         }
-        UpdateModelAnimation(paladinModel, anims[animIndex_], animFrame_);
+        RM().ApplyModelAnimation(ResourceKeys::Model_Paladin, animFrame_, animIndex_);
     }
 
     // 3. ギズモ編集結果も含め、常に最新の Player 位置を PlayerCamera へ同期
@@ -77,7 +84,7 @@ void GameContext::Draw() const
     enemyManager_.Draw();
 
     Model& paladinModel = ResourceManager::GetInstance().GetModelRef(ResourceKeys::Model_Paladin);
-    DrawModel(paladinModel, { 0.0f, 0.0f, 3.0f }, 1.0f, WHITE);
+    DrawModel(paladinModel, paladinPosition_, 1.0f, WHITE);
 
     EndMode3D();
 }
