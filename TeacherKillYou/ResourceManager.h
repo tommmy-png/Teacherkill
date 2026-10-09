@@ -1,4 +1,4 @@
-ï»¿#pragma once
+#pragma once
 #include <string>
 #include <unordered_map>
 #include "raylib.h"
@@ -8,25 +8,20 @@ class ResourceManager {
 public:
     static ResourceManager& GetInstance();
 
-    // ã‚­ãƒ¼ã¨ãƒ‘ã‚¹ã‚’æŒ‡å®šã—ã¦ãƒ¢ãƒ‡ãƒ«ã‚’ãƒ­ãƒ¼ãƒ‰ãƒ»ç™»éŒ²ã™ã‚‹
+    // ƒL[‚ÆƒpƒX‚ğw’è‚µ‚Äƒ‚ƒfƒ‹‚ğƒ[ƒhE“o˜^‚·‚é
     void LoadModel(const std::string& key, const std::string& path);
 
-    // ã‚­ãƒ¼ã‚’æŒ‡å®šã—ã¦ã©ã“ã‹ã‚‰ã§ã‚‚ãƒ¢ãƒ‡ãƒ«ã‚’å–å¾—ã™ã‚‹
+    // ƒL[‚ğw’è‚µ‚Ä‚Ç‚±‚©‚ç‚Å‚àƒ‚ƒfƒ‹‚ğæ“¾‚·‚é
     Model GetModel(const std::string& key) const;
     Model& GetModelRef(const std::string& key);
 
-    // èª­ã¿è¾¼ã¿æ™‚ã®å¯¸æ³•ã‚’ä¿æŒã—ã€æç”»æ™‚ã®é ‚ç‚¹èµ°æŸ»ã‚’çœãã€‚
-    BoundingBox GetModelBounds(const std::string& key) const;
-    // å…ˆé ­ã®æœ‰åŠ¹ãªã‚¯ãƒªãƒƒãƒ—ã‚’è¿”ã™ã€‚æœªç™»éŒ²ãªã‚‰ç©ºã€‚æ‰€æœ‰ã¨è§£æ”¾ã¯ResourceManagerãŒæ‹…å½“ã™ã‚‹ã€‚
-    ModelAnimation GetModelAnimation(const std::string& key) const;
-
-    // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³èª­ã¿è¾¼ã¿ç”¨é–¢æ•°
+    // ƒAƒjƒ[ƒVƒ‡ƒ““Ç‚İ‚İ—pŠÖ”
     void LoadModelAnimations(const std::string& key, const std::string& path);
 
-    // æŒ‡å®šã—ãŸã‚­ãƒ¼ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å–å¾—ï¼ˆå­˜åœ¨ã—ãªã„å ´åˆã¯ count = 0ï¼‰
+    // w’è‚µ‚½ƒL[‚ÌƒAƒjƒ[ƒVƒ‡ƒ“‚ğæ“¾i‘¶İ‚µ‚È‚¢ê‡‚Í count = 0j
     ModelAnimation* GetModelAnimations(const std::string& key, int* count = nullptr) const;
 
-    // å…¨ãƒ¢ãƒ‡ãƒ«ã®ä¸€æ‹¬ãƒ­ãƒ¼ãƒ‰ï¼ä¸€æ‹¬è§£æ”¾
+    // ‘Sƒ‚ƒfƒ‹‚ÌˆêŠ‡ƒ[ƒh^ˆêŠ‡‰ğ•ú
     void LoadAll();
     void UnloadAll();
 
@@ -38,7 +33,6 @@ private:
     ResourceManager& operator=(const ResourceManager&) = delete;
 
     std::unordered_map<std::string, Model> models_;
-    std::unordered_map<std::string, BoundingBox> modelBounds_;
 
     struct AnimationData {
         ModelAnimation* anims{ nullptr };
@@ -47,7 +41,7 @@ private:
     std::unordered_map<std::string, AnimationData> animations_;
 };
 
-// ã‚·ãƒ§ãƒ¼ãƒˆã‚«ãƒƒãƒˆé–¢æ•°
+// ƒVƒ‡[ƒgƒJƒbƒgŠÖ”
 inline ResourceManager& RM() {
     return ResourceManager::GetInstance();
 }

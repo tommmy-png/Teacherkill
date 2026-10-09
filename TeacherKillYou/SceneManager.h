@@ -3,7 +3,6 @@
 #include "GameContext.h"
 #include "TitleScene.h"
 #include "GameScene.h"
-#include "SystemMode.h"
 
 enum class SceneID { Title, Game };
 
@@ -44,7 +43,6 @@ private:
     TitleScene  titleScene{ &gameContext };
     GameScene   gameScene{ &gameContext };
 
-    SystemMode systemMode_;
     Scene* currentScene = nullptr;
 
     RunConfig runConfig{};

@@ -19,12 +19,6 @@ public:
     CameraController& GetCameraController() { return cameraController_; }
     const CameraController& GetCameraController() const { return cameraController_; }
 
-    Player& GetPlayer() { return player_; }
-    const Player& GetPlayer() const { return player_; }
-
-    Stage& GetStage() { return stage_; }
-    const Stage& GetStage() const { return stage_; }
-
     demo::EnemyManager& GetEnemyManager() { return enemyManager_; }
     const demo::EnemyManager& GetEnemyManager() const { return enemyManager_; }
 

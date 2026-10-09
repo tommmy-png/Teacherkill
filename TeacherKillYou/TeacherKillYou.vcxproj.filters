@@ -42,6 +42,9 @@
     <Filter Include="Core">
       <UniqueIdentifier>{5c431b71-fa37-4e3e-b358-209f910fa13c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DebugUI">
+      <UniqueIdentifier>{2f3c4ab1-6f63-43a8-80b8-641ddd906fd1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Resource">
       <UniqueIdentifier>{a0e187d4-8691-4c14-97bc-6876b18b45be}</UniqueIdentifier>
     </Filter>
@@ -71,15 +74,6 @@
     </Filter>
     <Filter Include="GamePlay\Actors\Enemy">
       <UniqueIdentifier>{0ba82620-9cc4-45f6-92fa-d40e5d98a0d3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Debug">
-      <UniqueIdentifier>{60f18078-5f27-4e19-8fab-c43ac4fc1df2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Debug\DebugUI">
-      <UniqueIdentifier>{2f3c4ab1-6f63-43a8-80b8-641ddd906fd1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Debug\GizmoDrawer">
-      <UniqueIdentifier>{b92afbe3-f4cc-4fd4-932f-df5f72d13a48}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -138,7 +132,7 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="DebugUI.cpp">
-      <Filter>Debug\DebugUI</Filter>
+      <Filter>DebugUI</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Resource</Filter>
@@ -163,12 +157,6 @@
     </ClCompile>
     <ClCompile Include="EnemyManager.cpp">
       <Filter>GamePlay\Actors\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="SystemMode.cpp">
-      <Filter>Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GizmoDrawer.cpp">
-      <Filter>Debug\GizmoDrawer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -242,7 +230,7 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="DebugUI.h">
-      <Filter>Debug\DebugUI</Filter>
+      <Filter>DebugUI</Filter>
     </ClInclude>
     <ClInclude Include="ResourceKeys.h">
       <Filter>Resource</Filter>
@@ -273,15 +261,6 @@
     </ClInclude>
     <ClInclude Include="EnemyManager.h">
       <Filter>GamePlay\Actors\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemMode.h">
-      <Filter>Debug</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GizmoDrawer.h">
-      <Filter>Debug\GizmoDrawer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
