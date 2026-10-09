@@ -3,6 +3,7 @@
 #include "ResourceManager.h"
 #include "ResourceKeys.h"
 #include "raymath.h"
+#include "rlgl.h"
 
 void Player::Init()
 {
@@ -11,7 +12,9 @@ void Player::Init()
 
 void Player::Reset()
 {
-    position_ = { 0.0f, 0.0f, 0.0f };
+    position_ = { 0.0f, 4.0f, 0.0f };
+    rotation_ = { 0.0f, 0.0f, 0.0f };
+    scale_ = { 1.0f, 1.0f, 1.0f };
     velocity_ = { 0.0f, 0.0f, 0.0f };
     isGrounded_ = false;
 }
@@ -147,7 +150,27 @@ void Player::Draw() const
     Model playerModel =
         ResourceManager::GetInstance().GetModel(ResourceKeys::Model_Player);
 
-    DrawModel(playerModel, position_, 1.0f, WHITE);
+    // X, Y, Z の全軸回転を適用して描画
+    rlPushMatrix();
+    {
+        // 1. 位置移動
+        rlTranslatef(position_.x, position_.y, position_.z);
+
+        // 2. 回転（Y -> X -> Z の順で適用）
+        rlRotatef(rotation_.z, 0.0f, 0.0f, 1.0f);
+        rlRotatef(rotation_.x, 1.0f, 0.0f, 0.0f);
+        rlRotatef(rotation_.y, 0.0f, 1.0f, 0.0f);
+
+        // 3. 拡大縮小
+        rlScalef(scale_.x, scale_.y, scale_.z);
+
+        // モデルの各メッシュを描画
+        for (int i = 0; i < playerModel.meshCount; i++)
+        {
+            DrawMesh(playerModel.meshes[i], playerModel.materials[playerModel.meshMaterial[i]], MatrixIdentity());
+        }
+    }
+    rlPopMatrix();
 }
 
 void Player::End()

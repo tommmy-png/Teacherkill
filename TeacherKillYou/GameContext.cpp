@@ -23,18 +23,23 @@ void GameContext::Reset()
 
 void GameContext::Update(float deltaTime)
 {
-    // 1. カメラの向きを取得
-    Vector3 forward = cameraController_.GetPlayerCamera().GetForwardVector();
-    Vector3 right = cameraController_.GetPlayerCamera().GetRightVector();
+    // 現在のアクティブカメラが PlayerCamera かどうかチェック
+    bool isPlayerCameraActive = (cameraController_.GetActiveType() == CameraType::Player);
 
-    // 2. プレイヤーの移動（ステージとの当たり判定を含めて更新）
-    player_.Update(deltaTime, stage_, forward, right);
+    // 1. プレイヤーカメラがアクティブな時のみ、プレイヤーの移動操作を行う
+    if (isPlayerCameraActive)
+    {
+        Vector3 forward = cameraController_.GetPlayerCamera().GetForwardVector();
+        Vector3 right = cameraController_.GetPlayerCamera().GetRightVector();
 
-    // 3. ステージの更新
+        // プレイヤーの更新
+        player_.Update(deltaTime, stage_, forward, right);
+    }
+
+    // 2. ステージや敵の更新（システムカメラ中もゲームワールド自体の時間は動かす）
     stage_.Update(deltaTime);
     enemyManager_.Update(deltaTime, player_, stage_);
     enemyManager_.RemoveExpired();
-
 
     int animCount = 0;
     ModelAnimation* anims = ResourceManager::GetInstance().GetModelAnimations(ResourceKeys::Model_Paladin, &animCount);
@@ -51,8 +56,13 @@ void GameContext::Update(float deltaTime)
         UpdateModelAnimation(paladinModel, anims[animIndex_], animFrame_);
     }
 
-    // 4. カメラを移動後のプレイヤーに追従させて更新
-    cameraController_.GetPlayerCamera().SetPlayerPosition(player_.GetPosition());
+    // 3. プレイヤーカメラアクティブ時のみ追従処理を行う
+    if (isPlayerCameraActive)
+    {
+        cameraController_.GetPlayerCamera().SetPlayerPosition(player_.GetPosition());
+    }
+
+    // 4. カメラコントローラー全体の更新（K/Lキーの監視やアクティブカメラの更新を行う）
     cameraController_.Update();
 }
 
