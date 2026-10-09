@@ -12,9 +12,7 @@ public:
 
     Vector3 GetForwardVector() const;
     Vector3 GetRightVector() const;
-    Vector3 GetPosition() const;
-    Vector3 GetUpVector() const;
-    float GetPitch() const;
+
     // プレイヤーの位置を設定するヘルパーメソッド
     void SetPlayerPosition(Vector3 pos) { playerPosition_ = pos; }
 
@@ -26,6 +24,4 @@ private:
     // カメラの現在の角度（ラジアン）5
     float yaw_{ 0.0f };             // 水平角度
     float pitch_{ 0.0f };           // 垂直角度
-
-   
 };
