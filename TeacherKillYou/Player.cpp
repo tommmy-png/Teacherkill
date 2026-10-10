@@ -5,8 +5,54 @@
 #include "PlayerCamera.h"
 #include "raymath.h"
 #include "rlgl.h"
+#include <cmath>
 
-void Player::Init() { Reset(); }
+namespace
+{
+    // The GLB contains skinned hands alongside non-skinned gun meshes.
+    // Updating each skinned mesh separately avoids touching missing skin data.
+    void UpdateSkinnedMeshes(Model& model, const ModelAnimation& animation, float frame)
+    {
+        for (int i = 0; i < model.meshCount; ++i)
+        {
+            Mesh& mesh = model.meshes[i];
+            if (mesh.boneWeights == nullptr ||
+                mesh.boneIds == nullptr ||
+                mesh.boneMatrices == nullptr ||
+                mesh.animVertices == nullptr)
+            {
+                continue;
+            }
+
+            Model skinnedView = model;
+            skinnedView.meshes = &model.meshes[i];
+            skinnedView.meshCount = 1;
+            UpdateModelAnimation(skinnedView, animation, frame);
+        }
+    }
+
+    int GetAnimationFrameCount(const ModelAnimation& animation)
+    {
+#if defined(RAYLIB_VERSION_MAJOR) && RAYLIB_VERSION_MAJOR >= 6
+        return animation.keyframeCount;
+#else
+        return animation.frameCount;
+#endif
+    }
+}
+
+void Player::Init()
+{
+    Reset();
+
+    const char* shootPath = "Data/Image/HandPov/shoot_raylib.glb";
+    shootModel_ = LoadModel(shootPath);
+    shootAnimations_ = LoadModelAnimations(shootPath, &shootAnimationCount_);
+
+    const char* reloadPath = "Data/Image/HandPov/reload_raylib.glb";
+    reloadModel_ = LoadModel(reloadPath);
+    reloadAnimations_ = LoadModelAnimations(reloadPath, &reloadAnimationCount_);
+}
 
 void Player::Reset()
 {
@@ -15,6 +61,14 @@ void Player::Reset()
     scale_ = { 1.0f, 1.0f, 1.0f };
     velocity_ = { 0.0f, 0.0f, 0.0f };
     isGrounded_ = false;
+
+    isShooting_ = false;
+    shootTimer_ = 0.0f;
+    isReloading_ = false;
+    reloadTimer_ = 0.0f;
+
+    currentAmmo_ = magazineCapacity_;
+    reserveAmmo_ = 90;
 }
 
 void Player::Update(float deltaTime, const Stage& stage, Vector3 forward, Vector3 right)
@@ -27,6 +81,70 @@ void Player::Update(float deltaTime, const Stage& stage, Vector3 forward, Vector
     }
 
     UpdateVerticalPhysics(deltaTime, stage);
+
+    if (IsKeyPressed(KEY_R) && !isShooting_ && !isReloading_ &&
+        currentAmmo_ < magazineCapacity_ && reserveAmmo_ > 0 &&
+        reloadModel_.meshCount > 0 && reloadAnimations_ != nullptr && reloadAnimationCount_ > 0)
+    {
+        isReloading_ = true;
+        reloadTimer_ = 0.0f;
+        UpdateSkinnedMeshes(reloadModel_, reloadAnimations_[0], 0.0f);
+    }
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !isShooting_ && !isReloading_ &&
+        currentAmmo_ > 0 &&
+        shootModel_.meshCount > 0 && shootAnimations_ != nullptr && shootAnimationCount_ > 0)
+    {
+        isShooting_ = true;
+        shootTimer_ = 0.0f;
+        --currentAmmo_;
+        UpdateSkinnedMeshes(shootModel_, shootAnimations_[0], 0.0f);
+    }
+
+    if (isReloading_)
+    {
+        reloadTimer_ += deltaTime;
+        if (reloadTimer_ >= reloadDuration_)
+        {
+            const int needed = magazineCapacity_ - currentAmmo_;
+            const int loaded = (reserveAmmo_ < needed) ? reserveAmmo_ : needed;
+            currentAmmo_ += loaded;
+            reserveAmmo_ -= loaded;
+
+            isReloading_ = false;
+            reloadTimer_ = 0.0f;
+        }
+        else
+        {
+            const int frameCount = GetAnimationFrameCount(reloadAnimations_[0]);
+            if (frameCount > 0)
+            {
+                const float progress = reloadTimer_ / reloadDuration_;
+                const float frame = progress * (frameCount - 1);
+                UpdateSkinnedMeshes(reloadModel_, reloadAnimations_[0], frame);
+            }
+        }
+    }
+
+    if (isShooting_)
+    {
+        shootTimer_ += deltaTime;
+        if (shootTimer_ >= shootDuration_)
+        {
+            isShooting_ = false;
+            shootTimer_ = 0.0f;
+        }
+        else
+        {
+            const int frameCount = GetAnimationFrameCount(shootAnimations_[0]);
+            if (frameCount > 0)
+            {
+                const float progress = shootTimer_ / shootDuration_;
+                const float frame = progress * (frameCount - 1);
+                UpdateSkinnedMeshes(shootModel_, shootAnimations_[0], frame);
+            }
+        }
+    }
 }
 
 Vector3 Player::GetInputMoveDirection(Vector3 forward, Vector3 right) const
@@ -88,55 +206,99 @@ void Player::UpdateVerticalPhysics(float deltaTime, const Stage& stage)
 
 void Player::Draw(const PlayerCamera* camera) const
 {
-    Model handGun = ResourceManager::GetInstance().GetModel(ResourceKeys::Model_HandGunView);
+    Model handGun;
+    if (isReloading_ && reloadModel_.meshCount > 0)
+    {
+        handGun = reloadModel_;
+    }
+    else if (isShooting_ && shootModel_.meshCount > 0)
+    {
+        handGun = shootModel_;
+    }
+    else
+    {
+        handGun = ResourceManager::GetInstance().GetModel(ResourceKeys::Model_HandGunView);
+    }
 
     if (camera != nullptr)
     {
-        // 1. 一人称視点 (FPS) 時の描画計算
-        // カメラの位置・正面方向・上下角度(Pitch)に手を完全に追従させる
-        
         Vector3 camPos = camera->GetPosition();
         Vector3 forward = camera->GetForwardVector();
         Vector3 right = camera->GetRightVector();
         Vector3 up = camera->GetUpVector();
 
-        // カメラ視点からの手元オフセット位置
         Vector3 pos = Vector3Add(camPos, Vector3Scale(forward, 0.22f));
-        pos = Vector3Add(pos, Vector3Scale(right, 0.01f));
-        pos = Vector3Subtract(pos, Vector3Scale(up, 0.25f));
+        pos = Vector3Add(pos, Vector3Scale(right, -0.1f));
+        pos = Vector3Subtract(pos, Vector3Scale(up, 0.18f));
 
         float yaw = atan2f(forward.x, forward.z) * RAD2DEG;
 
-        // FPSカメラの上下・左右に連動させて描画
-        DrawModelEx(
-            handGun, pos, { 0.0f, 1.0f, 0.0f }, yaw,
-            { viewModelScale_, viewModelScale_, viewModelScale_ }, WHITE
-        );
+        if (isShooting_)
+        {
+            float progress = Clamp(shootTimer_ / shootDuration_, 0.0f, 1.0f);
+            float recoil = sinf(progress * PI) * 0.045f;
+            pos = Vector3Subtract(pos, Vector3Scale(forward, recoil));
+            pos = Vector3Add(pos, Vector3Scale(up, recoil * 0.55f));
+        }
+
+        DrawModelEx(handGun, pos, { 0.0f, 1.0f, 0.0f }, yaw,
+            { viewModelScale_, viewModelScale_, viewModelScale_ }, WHITE);
     }
     else
     {
-        // 2. システムカメラ（デバッグ）時の描画計算
-        // ギズモ操作用の Transform (position_, rotation_, scale_) に直接従う
+        // System camera / debug transform
         rlPushMatrix();
+        rlTranslatef(position_.x, position_.y, position_.z);
+        rlRotatef(rotation_.z, 0.0f, 0.0f, 1.0f);
+        rlRotatef(rotation_.x, 1.0f, 0.0f, 0.0f);
+        rlRotatef(rotation_.y, 0.0f, 1.0f, 0.0f);
+        rlScalef(scale_.x * viewModelScale_, scale_.y * viewModelScale_, scale_.z * viewModelScale_);
+
+        for (int i = 0; i < handGun.meshCount; ++i)
         {
-            rlTranslatef(position_.x, position_.y, position_.z);
-            rlRotatef(rotation_.z, 0.0f, 0.0f, 1.0f);
-            rlRotatef(rotation_.x, 1.0f, 0.0f, 0.0f);
-            rlRotatef(rotation_.y, 0.0f, 1.0f, 0.0f);
-
-            rlScalef(
-                scale_.x * viewModelScale_,
-                scale_.y * viewModelScale_,
-                scale_.z * viewModelScale_
-            );
-
-            for (int i = 0; i < handGun.meshCount; i++)
-            {
-                DrawMesh(handGun.meshes[i], handGun.materials[handGun.meshMaterial[i]], MatrixIdentity());
-            }
+            DrawMesh(handGun.meshes[i], handGun.materials[handGun.meshMaterial[i]], MatrixIdentity());
         }
         rlPopMatrix();
     }
 }
 
-void Player::End() {}
+void Player::DrawAmmoHUD() const
+{
+    const int x = GetScreenWidth() - 210;
+    const int y = GetScreenHeight() - 70;
+
+    DrawRectangle(x - 15, y - 12, 195, 60, Fade(BLACK, 0.65f));
+    DrawText(TextFormat("%02d / %02d", currentAmmo_, reserveAmmo_), x, y, 30, RAYWHITE);
+
+    if (isReloading_)
+    {
+        DrawText("RELOADING", x, y - 25, 18, YELLOW);
+    }
+}
+
+void Player::End()
+{
+    if (shootAnimations_ != nullptr)
+    {
+        UnloadModelAnimations(shootAnimations_, shootAnimationCount_);
+        shootAnimations_ = nullptr;
+        shootAnimationCount_ = 0;
+    }
+    if (shootModel_.meshCount > 0)
+    {
+        UnloadModel(shootModel_);
+        shootModel_ = {};
+    }
+
+    if (reloadAnimations_ != nullptr)
+    {
+        UnloadModelAnimations(reloadAnimations_, reloadAnimationCount_);
+        reloadAnimations_ = nullptr;
+        reloadAnimationCount_ = 0;
+    }
+    if (reloadModel_.meshCount > 0)
+    {
+        UnloadModel(reloadModel_);
+        reloadModel_ = {};
+    }
+}

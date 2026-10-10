@@ -4,6 +4,36 @@
 #include "raylib.h"
 #include "CameraController.h"
 
+static void DrawCrosshair()
+{
+    int centerX = GetScreenWidth() / 2;
+    int centerY = GetScreenHeight() / 2;
+
+    int gap = 5;
+    int length = 10;
+    int thickness = 2;
+
+    Color color = WHITE;
+
+    DrawRectangle(centerX - thickness / 2,
+        centerY - gap - length,
+        thickness, length, color);
+
+    DrawRectangle(centerX - thickness / 2,
+        centerY + gap,
+        thickness, length, color);
+
+    DrawRectangle(centerX - gap - length,
+        centerY - thickness / 2,
+        length, thickness, color);
+
+    DrawRectangle(centerX + gap,
+        centerY - thickness / 2,
+        length, thickness, color);
+
+    DrawCircle(centerX, centerY, 2, color);
+}
+
 void GameContext::Init()
 {
     cameraController_.Init();
@@ -80,6 +110,14 @@ void GameContext::Draw() const
     DrawModel(paladinModel, { 0.0f, 0.0f, 3.0f }, 1.0f, WHITE);
 
     EndMode3D();
+    // =====================================
+    // 2D HUD
+    // =====================================
+    if (cameraController_.GetActiveType() == CameraType::Player)
+    {
+        DrawCrosshair();
+        player_.DrawAmmoHUD();
+    }
 }
 
 void GameContext::End()
