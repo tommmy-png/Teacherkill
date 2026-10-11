@@ -4,6 +4,36 @@
 #include "raylib.h"
 #include "CameraController.h"
 
+static void DrawCrosshair()
+{
+    int centerX = GetScreenWidth() / 2;
+    int centerY = GetScreenHeight() / 2;
+
+    int gap = 5;
+    int length = 10;
+    int thickness = 2;
+
+    Color color = WHITE;
+
+    DrawRectangle(centerX - thickness / 2,
+        centerY - gap - length,
+        thickness, length, color);
+
+    DrawRectangle(centerX - thickness / 2,
+        centerY + gap,
+        thickness, length, color);
+
+    DrawRectangle(centerX - gap - length,
+        centerY - thickness / 2,
+        length, thickness, color);
+
+    DrawRectangle(centerX + gap,
+        centerY - thickness / 2,
+        length, thickness, color);
+
+    DrawCircle(centerX, centerY, 2, color);
+}
+
 void GameContext::Init()
 {
     cameraController_.Init();
@@ -23,7 +53,7 @@ void GameContext::Reset()
 
 void GameContext::PlaceCharacters()
 {
-    // Player‚ÌTransform‚ÍˆÛ‚µA‘«Œ³‚Ì‚‚³‚¾‚¯‚ğƒXƒe[ƒW‚Ì°‚Ö‡‚í‚¹‚éB
+    // Playerã®Transformã¯ç¶­æŒã—ã€è¶³å…ƒã®é«˜ã•ã ã‘ã‚’ã‚¹ãƒ†ãƒ¼ã‚¸ã®åºŠã¸åˆã‚ã›ã‚‹ã€‚
     player_.SetPosition(stage_.FindGroundPosition(player_.GetPosition()));
     enemyManager_.Clear();
     enemyManager_.Spawn(stage_.FindGroundPosition({ 0.9f, 0.0f, 2.5f }), {});
@@ -37,7 +67,7 @@ void GameContext::Update(float deltaTime)
     lighting_.Update();
     bool isPlayerCameraActive = (cameraController_.GetActiveType() == CameraType::Player);
 
-    // 1. ƒvƒŒƒCƒ„[‚ÌˆÚ“®“ü—ÍXViƒvƒŒƒCƒ„[ƒJƒƒ‰g—p‚Ì‚İˆÚ“®“ü—Íó•tj
+    // 1. ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç§»å‹•å…¥åŠ›æ›´æ–°ï¼ˆãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚«ãƒ¡ãƒ©ä½¿ç”¨æ™‚ã®ã¿ç§»å‹•å…¥åŠ›å—ä»˜ï¼‰
     if (isPlayerCameraActive)
     {
         Vector3 forward = cameraController_.GetPlayerCamera().GetForwardVector();
@@ -45,11 +75,11 @@ void GameContext::Update(float deltaTime)
         player_.Update(deltaTime, stage_, forward, right);
     }
 
-    // 2. ƒ[ƒ‹ƒhƒIƒuƒWƒFƒNƒgiƒXƒe[ƒWE“Gj‚ÌXV
+    // 2. ãƒ¯ãƒ¼ãƒ«ãƒ‰ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆï¼ˆã‚¹ãƒ†ãƒ¼ã‚¸ãƒ»æ•µï¼‰ã®æ›´æ–°
     enemyManager_.Update(deltaTime, player_, stage_);
     enemyManager_.RemoveExpired();
 
-    // ƒpƒ‰ƒfƒBƒ“ƒ‚ƒfƒ‹‚ÌƒAƒjƒ[ƒVƒ‡ƒ“XV
+    // ãƒ‘ãƒ©ãƒ‡ã‚£ãƒ³ãƒ¢ãƒ‡ãƒ«ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æ›´æ–°
     int animCount = 0;
     ModelAnimation* anims = ResourceManager::GetInstance().GetModelAnimations(ResourceKeys::Model_Paladin, &animCount);
     if (anims != nullptr && animCount > 0)
@@ -61,10 +91,10 @@ void GameContext::Update(float deltaTime)
         RM().ApplyModelAnimation(ResourceKeys::Model_Paladin, animFrame_, animIndex_);
     }
 
-    // 3. ƒMƒYƒ‚•ÒWŒ‹‰Ê‚àŠÜ‚ßAí‚ÉÅV‚Ì Player ˆÊ’u‚ğ PlayerCamera ‚Ö“¯Šú
+    // 3. ã‚®ã‚ºãƒ¢ç·¨é›†çµæœã‚‚å«ã‚ã€å¸¸ã«æœ€æ–°ã® Player ä½ç½®ã‚’ PlayerCamera ã¸åŒæœŸ
     cameraController_.GetPlayerCamera().SetPlayerPosition(player_.GetPosition());
 
-    // 4. ƒJƒƒ‰ƒRƒ“ƒgƒ[ƒ‰[‚ÌXV
+    // 4. ã‚«ãƒ¡ãƒ©ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ©ãƒ¼ã®æ›´æ–°
     cameraController_.Update();
 }
 
@@ -75,11 +105,11 @@ void GameContext::Draw() const
         cameraController_.GetPlayerCamera().GetRaylibCamera());
     BeginMode3D(cameraController_.GetActiveRaylibCamera());
 
-    // •ÒW—pƒOƒŠƒbƒh‚ÍƒVƒXƒeƒ€ƒJƒƒ‰‚Å‚¾‚¯•\¦‚·‚éB
+    // ç·¨é›†ç”¨ã‚°ãƒªãƒƒãƒ‰ã¯ã‚·ã‚¹ãƒ†ãƒ ã‚«ãƒ¡ãƒ©ã§ã ã‘è¡¨ç¤ºã™ã‚‹ã€‚
     if (!playerView) DrawGrid(20, 1.0f);
     stage_.Draw();
 
-    // Player Camera ‚ªƒAƒNƒeƒBƒu‚È‚¾‚¯ƒJƒƒ‰ƒ|ƒCƒ“ƒ^‚ğ“n‚µAˆêlÌ—p‚É’Ç]‚³‚¹‚é
+    // Player Camera ãŒã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªæ™‚ã ã‘ã‚«ãƒ¡ãƒ©ãƒã‚¤ãƒ³ã‚¿ã‚’æ¸¡ã—ã€ä¸€äººç§°ç”¨ã«è¿½å¾“ã•ã›ã‚‹
     const PlayerCamera* activePlayerCam = nullptr;
     if (cameraController_.GetActiveType() == CameraType::Player)
     {
@@ -94,7 +124,14 @@ void GameContext::Draw() const
     DrawModel(paladinModel, paladinPosition_, 1.0f, WHITE);
 
     EndMode3D();
-    lighting_.EndFrame(playerView);
+    // =====================================
+    // 2D HUD
+    // =====================================
+    if (cameraController_.GetActiveType() == CameraType::Player)
+    {
+        DrawCrosshair();
+        player_.DrawAmmoHUD();
+    }
 }
 
 void GameContext::End()
