@@ -75,6 +75,7 @@ void GameContext::Reset()
 {
     player_.Reset();
     stage_.Reset();
+    door_.Reset();
     PlaceCharacters();
     lighting_.Init(RM().GetModelShaders());
     hitMarkerTimer_ = 0.0f;
@@ -198,8 +199,32 @@ void GameContext::Update(float deltaTime)
     {
         Vector3 forward = cameraController_.GetPlayerCamera().GetForwardVector();
         Vector3 right = cameraController_.GetPlayerCamera().GetRightVector();
+
+        // プレイヤーの移動前の位置を保持しておく
+        Vector3 oldPlayerPos = player_.GetPosition();
+
+        // プレイヤー更新
         player_.Update(deltaTime, stage_, forward, right);
+
+        // ドアとの当たり判定チェック
+        BoundingBox doorBox = door_.GetBoundingBox();
+
+        // プレイヤーを高さ方向を考慮した球（あるいはカプセル）に見立てて判定
+        Vector3 playerCenter = {
+            player_.GetPosition().x,
+            player_.GetPosition().y + player_.GetHeight() * 0.5f,
+            player_.GetPosition().z
+        };
+
+        // Raylib の関数でボックスと球の衝突をチェック
+        if (CheckCollisionBoxSphere(doorBox, playerCenter, player_.GetRadius()))
+        {
+            // 衝突している場合は移動前の位置に巻き戻す（すり抜け防止）
+            player_.SetPosition(oldPlayerPos);
+        }
     }
+
+    door_.Update(deltaTime, player_);
 
     // 2. ワールドオブジェクト（ステージ・敵）の更新
     enemyManager_.Update(deltaTime, player_, stage_);
@@ -243,8 +268,9 @@ void GameContext::Draw() const
         activePlayerCam = &cameraController_.GetPlayerCamera();
     }
 
-    player_.Draw(activePlayerCam);
+    door_.Draw();
 
+    player_.Draw(activePlayerCam);
     enemyManager_.Draw();
 
     Model& paladinModel = ResourceManager::GetInstance().GetModelRef(ResourceKeys::Model_Paladin);
