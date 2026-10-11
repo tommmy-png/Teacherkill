@@ -103,7 +103,7 @@ TargetInfo TargetInfo::FromPlayer(const Player& player) {
     target.position = player.GetPosition();
     // Playerのprivateな衝突寸法と対応するため、Player側の寸法変更時はここも更新する。
     target.bodyBounds = BodyBounds(target.position, 0.4f, 1.8f);
-    target.alive = true;
+    target.alive = player.IsAlive();
     target.valid = IsFinite(target.position);
     return target;
 }

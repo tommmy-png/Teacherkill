@@ -2,7 +2,7 @@
 #include "GameObject.h"
 
 class Stage;
-class PlayerCamera; // 前方宣言
+class PlayerCamera;
 
 class Player : public GameObject
 {
@@ -12,22 +12,46 @@ public:
 
     void Init();
     void Reset();
-    void Update(float deltaTime, const Stage& stage, Vector3 forward = { 0,0,1 }, Vector3 right = { 1,0,0 });
 
-    // カメラ情報を受け取る Draw 関数
+    void Update(float deltaTime, const Stage& stage,
+        Vector3 forward = { 0, 0, 1 },
+        Vector3 right = { 1, 0, 0 });
+
     void Draw(const PlayerCamera* camera = nullptr) const;
+    void DrawAmmoHUD() const;
+    void DrawHealthHUD() const;
+    void DrawDamageOverlay() const;
+    void DrawStaminaHUD() const;
     void End();
+
+    void TakeDamage(int amount);
+
+    int GetHp() const { return hp_; }
+    int GetMaxHp() const { return maxHp_; }
+    bool IsAlive() const { return hp_ > 0; }
 
     float GetRadius() const { return playerRadius_; }
     float GetHeight() const { return playerHeight_; }
-    void SetColliderSize(float radius, float height) { playerRadius_ = radius; playerHeight_ = height; }
+
+    void SetColliderSize(float radius, float height)
+    {
+        playerRadius_ = radius;
+        playerHeight_ = height;
+    }
+
+    bool ConsumeShot()
+    {
+        const bool fired = shotPending_;
+        shotPending_ = false;
+        return fired;
+    }
 
 private:
     Vector3 GetInputMoveDirection(Vector3 forward, Vector3 right) const;
     void MoveWithCollision(Vector3 moveAmount, const Stage& stage);
     void UpdateVerticalPhysics(float deltaTime, const Stage& stage);
+    void UpdateWeapon(float deltaTime);
 
-private:
     Vector3 velocity_{ 0.0f, 0.0f, 0.0f };
     float moveSpeed_{ 5.0f };
 
@@ -36,7 +60,39 @@ private:
 
     float gravity_{ -9.81f };
     float jumpForce_{ 3.0f };
-
     bool isGrounded_{ false };
-    float viewModelScale_{ 0.01f }; // 手のモデルのスケール調整用
+
+    float viewModelScale_{ 0.01f };
+
+    bool isShooting_{ false };
+    bool isReloading_{ false };
+    bool shotPending_{ false };
+
+    float shootTimer_{ 0.0f };
+    float reloadTimer_{ 0.0f };
+
+    float shootDuration_{ 0.417f };
+    float reloadDuration_{ 2.291667f };
+
+    int magazineCapacity_{ 15 };
+    int currentAmmo_{ 15 };
+    int reserveAmmo_{ 90 };
+
+    int maxHp_{ 100 };
+    int hp_{ 100 };
+
+    float damageFlashTimer_{ 0.0f };
+    float damageFlashDuration_{ 0.25f };
+
+    float sprintSpeed_{ 8.0f };
+    bool isSprinting_{ false };
+    bool sprintExhausted_{ false };
+
+    float maxStamina_{ 100.0f };
+    float stamina_{ 100.0f };
+
+    float staminaDrainRate_{ 25.0f };
+    float staminaRegenRate_{ 20.0f };
+    float staminaRecoveryDelay_{ 0.75f };
+    float staminaRecoveryTimer_{ 0.0f };
 };
