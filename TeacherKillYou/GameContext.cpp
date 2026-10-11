@@ -3,6 +3,62 @@
 #include "ResourceKeys.h"
 #include "raylib.h"
 #include "CameraController.h"
+#include "raymath.h"
+
+static void DrawCrosshair()
+{
+    const int x = GetScreenWidth() / 2;
+    const int y = GetScreenHeight() / 2;
+
+    const int gap = 5;
+    const int length = 10;
+    const int thickness = 2;
+
+    DrawRectangle(x - thickness / 2, y - gap - length,
+        thickness, length, WHITE);
+
+    DrawRectangle(x - thickness / 2, y + gap,
+        thickness, length, WHITE);
+
+    DrawRectangle(x - gap - length, y - thickness / 2,
+        length, thickness, WHITE);
+
+    DrawRectangle(x + gap, y - thickness / 2,
+        length, thickness, WHITE);
+
+    DrawCircle(x, y, 2.0f, WHITE);
+}
+static void DrawHitMarker(bool isKill)
+{
+    const float x = GetScreenWidth() * 0.5f;
+    const float y = GetScreenHeight() * 0.5f;
+
+    const float inner = 7.0f;
+    const float outer = 14.0f;
+    const float thickness = 2.0f;
+
+    const Color color = isKill ? RED : WHITE;
+
+    DrawLineEx(
+        { x - outer, y - outer },
+        { x - inner, y - inner },
+        thickness, color);
+
+    DrawLineEx(
+        { x + inner, y - inner },
+        { x + outer, y - outer },
+        thickness, color);
+
+    DrawLineEx(
+        { x - outer, y + outer },
+        { x - inner, y + inner },
+        thickness, color);
+
+    DrawLineEx(
+        { x + inner, y + inner },
+        { x + outer, y + outer },
+        thickness, color);
+}
 
 void GameContext::Init()
 {
@@ -11,6 +67,8 @@ void GameContext::Init()
     stage_.Init();
     PlaceCharacters();
     lighting_.Init(RM().GetModelShaders());
+    hitMarkerTimer_ = 0.0f;
+    hitMarkerKill_ = false;
 }
 
 void GameContext::Reset()
@@ -19,6 +77,8 @@ void GameContext::Reset()
     stage_.Reset();
     PlaceCharacters();
     lighting_.Init(RM().GetModelShaders());
+    hitMarkerTimer_ = 0.0f;
+    hitMarkerKill_ = false;
 }
 
 void GameContext::PlaceCharacters()
@@ -32,8 +92,104 @@ void GameContext::PlaceCharacters()
     cameraController_.GetPlayerCamera().Update();
 }
 
+void GameContext::ProcessPlayerShot()
+{
+    if (!player_.ConsumeShot()) return;
+    if (!player_.IsAlive()) return;
+
+    if (cameraController_.GetActiveType() != CameraType::Player)
+    {
+        return;
+    }
+
+    constexpr float shotRange = 100.0f;
+    constexpr int shotDamage = 25;
+
+    const Camera3D camera =
+        cameraController_.GetPlayerCamera().GetRaylibCamera();
+
+    const Ray ray = {
+        camera.position,
+        Vector3Normalize(Vector3Subtract(camera.target, camera.position))
+    };
+
+    float closestDistance = shotRange;
+
+    const RayCollision wallHit = stage_.Raycast(ray, shotRange);
+    if (wallHit.hit)
+    {
+        closestDistance = wallHit.distance;
+    }
+
+    demo::EnemyId targetId = 0;
+    bool foundTarget = false;
+
+    for (const auto& enemy : enemyManager_.GetEnemies())
+    {
+        if (!enemy.IsAlive()) continue;
+
+        const BoundingBox bounds = enemy.GetBodyBounds();
+        RayCollision hit = GetRayCollisionBox(ray, bounds);
+
+        const bool inside =
+            ray.position.x >= bounds.min.x &&
+            ray.position.x <= bounds.max.x &&
+            ray.position.y >= bounds.min.y &&
+            ray.position.y <= bounds.max.y &&
+            ray.position.z >= bounds.min.z &&
+            ray.position.z <= bounds.max.z;
+
+        if (inside)
+        {
+            hit.hit = true;
+            hit.distance = 0.0f;
+        }
+
+        if (hit.hit &&
+            hit.distance >= 0.0f &&
+            hit.distance < closestDistance)
+        {
+            closestDistance = hit.distance;
+            targetId = enemy.GetId();
+            foundTarget = true;
+        }
+    }
+
+    if (!foundTarget)
+    {
+        TraceLog(LOG_INFO, "SHOT: no enemy hit");
+        return;
+    }
+
+    const demo::EnemyDamageResult result =
+        enemyManager_.ApplyDamage(targetId, shotDamage);
+
+    if (result.applied)
+    {
+        hitMarkerTimer_ = 0.12f;
+        hitMarkerKill_ = result.becameDead;
+
+        TraceLog(LOG_INFO, "HIT: enemy HP = %d", result.hp);
+
+        if (result.becameDead)
+        {
+            TraceLog(LOG_INFO, "Enemy defeated");
+        }
+    }
+}
+
 void GameContext::Update(float deltaTime)
 {
+    if (hitMarkerTimer_ > 0.0f)
+    {
+        hitMarkerTimer_ -= deltaTime;
+
+        if (hitMarkerTimer_ < 0.0f)
+        {
+            hitMarkerTimer_ = 0.0f;
+        }
+    }
+
     lighting_.Update();
     bool isPlayerCameraActive = (cameraController_.GetActiveType() == CameraType::Player);
 
@@ -66,6 +222,7 @@ void GameContext::Update(float deltaTime)
 
     // 4. カメラコントローラーの更新
     cameraController_.Update();
+    ProcessPlayerShot();
 }
 
 void GameContext::Draw() const
@@ -95,6 +252,22 @@ void GameContext::Draw() const
 
     EndMode3D();
     lighting_.EndFrame(playerView);
+
+    if (playerView)
+    {
+        player_.DrawDamageOverlay();
+
+        DrawCrosshair();
+
+        if (hitMarkerTimer_ > 0.0f)
+        {
+            DrawHitMarker(hitMarkerKill_);
+        }
+
+        player_.DrawHealthHUD();
+        player_.DrawStaminaHUD();
+        player_.DrawAmmoHUD();
+    }
 }
 
 void GameContext::End()

@@ -31,6 +31,8 @@ public:
 
 private:
     void PlaceCharacters();
+    void ProcessPlayerShot();
+
     mutable HorrorLighting lighting_;
     CameraController cameraController_;
     Player player_;
@@ -39,6 +41,11 @@ private:
 
     Vector3 paladinPosition_{ 0.0f, 0.0f, 3.0f };
 
+    float hitMarkerTimer_{ 0.0f };
+    bool hitMarkerKill_{ false };
+
     int animFrame_{ 0 };
     int animIndex_{ 0 };
+
+
 };
