@@ -15,7 +15,7 @@ ResourceManager& ResourceManager::GetInstance() {
 
 // ゲーム全体で使うモデルをキーと一緒に登録しておく
 void ResourceManager::LoadAll() {
-    LoadModel(ResourceKeys::Model_HandGunView, "Data/Image/HandPov/idle_static.glb");
+    LoadModel(ResourceKeys::Model_HandGunView, "Data/Image/HandPov/handgun.glb");
 
 	LoadModel(ResourceKeys::Model_Stage1, "Data/Image/floor 4.glb");
 
