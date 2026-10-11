@@ -251,10 +251,10 @@ void Enemy::UpdateGround(float dt, const Stage& stage) {
     const float nextY = position_.y + verticalVelocity_ * dt;
     const Ray downRay = { Vector3Add(position_, { 0, groundProbeHeight, 0 }), { 0, -1, 0 } };
     const float probeDistance = groundProbeHeight + (std::max)(0.0f, position_.y - nextY) + ContactEpsilon;
-    const RayCollision hit = stage.Raycast(downRay, probeDistance);
+    const RayCollision hit = stage.RaycastGround(downRay, probeDistance);
     const float groundY = downRay.position.y - hit.distance;
     // 上向き法線を持つ面だけに接地し、壁面や下向きの面を床として扱わない。
-    if (hit.hit && hit.normal.y > 0.5f && std::isfinite(groundY) && nextY <= groundY + ContactEpsilon) {
+    if (hit.hit && std::isfinite(groundY) && nextY <= groundY + ContactEpsilon) {
         position_.y = groundY;
         verticalVelocity_ = 0.0f;
     } else {
@@ -291,7 +291,7 @@ void Enemy::Draw() const {
         if (animation.frameCount > 0) {
             const int frame = static_cast<int>(animationTime_ / AnimationFrameDuration) % animation.frameCount;
             // メッシュを共有するため、各敵の描画直前にその敵のポーズを適用する。
-            UpdateModelAnimation(model, animation, frame);
+            RM().ApplyModelAnimation(ResourceKeys::Model_Enemy, frame);
         }
         const BoundingBox bounds = RM().GetModelBounds(ResourceKeys::Model_Enemy);
         const float height = bounds.max.y - bounds.min.y;

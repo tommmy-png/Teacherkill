@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Stage.h"
 #include "EnemyManager.h"
+#include "HorrorLighting.h"
 
 class GameContext
 {
@@ -29,10 +30,14 @@ public:
     const demo::EnemyManager& GetEnemyManager() const { return enemyManager_; }
 
 private:
+    void PlaceCharacters();
+    mutable HorrorLighting lighting_;
     CameraController cameraController_;
     Player player_;
     Stage stage_;
     demo::EnemyManager enemyManager_;
+
+    Vector3 paladinPosition_{ 0.0f, 0.0f, 3.0f };
 
     int animFrame_{ 0 };
     int animIndex_{ 0 };

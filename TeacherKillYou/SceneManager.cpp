@@ -30,6 +30,7 @@ void SceneManager::Init()
 
 void SceneManager::Shutdown()
 {
+    gameContext.End();
     RM().UnloadAll();
     rlImGuiShutdown();
     CloseWindow();
@@ -76,7 +77,7 @@ void SceneManager::Run()
 
         // 2. •`‰æˆ—
         BeginDrawing();
-        ClearBackground(RAYWHITE);
+        ClearBackground({ 3, 5, 8, 255 });
 
         // 3D/2DƒV[ƒ“•`‰æ
         if (currentScene)
